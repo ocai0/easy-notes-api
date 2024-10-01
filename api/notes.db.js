@@ -14,6 +14,7 @@ const TYPE = {
   NOTE: 0,
   FOLDER: 1
 }
+const notAllowed = ['created_at', 'updated_at', 'active']
 
 class EasyNotesDb {
   constructor(dbSync = false) {
@@ -90,26 +91,61 @@ class EasyNotesDb {
       })
     })
   }
-  getAllNotes({ page, pageSize } = {page: 0, pageSize: 4}) {
-    let sql = `SELECT * FROM t_item as note WHERE type = ? AND active = TRUE ORDER BY created_at LIMIT ? OFFSET ?`
+  getAllNotes(data) {
+    let { page, pageSize } = data;
+    if(!page) page = 0;
+    if(!pageSize) pageSize = 4;
     return new Promise((resolve, reject) => {
-      this._conn.all(sql, [TYPE.NOTE, pageSize, page * pageSize], (err, rows) => {
-        if(err) return reject(err);
-        return resolve(rows)
+      this._conn.serialize(() => {
+        this._conn.all("SELECT uuid FROM t_item WHERE type=?", [TYPE.NOTE], (err, result) => {
+          if(err) return reject(err);
+          const count = result.length;
+          this._conn.all(`SELECT * FROM t_item as note WHERE type = ? AND active = TRUE ORDER BY created_at LIMIT ? OFFSET ?`, [TYPE.NOTE, pageSize, page * pageSize], (err, rows) => {
+            if(err) return reject(err);
+            return resolve({data: rows, count})
+          })
+        })
       })
     })
   }
   getNote({ uuid }) {
     let sql = `SELECT * FROM t_item as note WHERE uuid = ? AND active = TRUE`
     return new Promise((resolve, reject) => {
-      this._conn.all(sql, [uuid], (err, rows) => {
+      this._conn.get(sql, [uuid], (err, row) => {
         if(err) return reject(err);
-        return resolve(rows[0])
+        return resolve(row)
       })
     })
   }
-  searchNote({ text }) {}
-  updateNote(noteData) {}
+  searchNote({ text }) {
+    return new Promise((resolve, reject) => {
+      this._conn.all(`SELECT * FROM t_items WHERE data LIKE ?`, [`%${text}%`], (err, rows) => {
+        if (err) return reject(err);
+        return resolve(rows);
+      });
+    });
+  }
+  updateNote(noteData, uuid) {
+    let query = `UPDATE t_item SET`;
+    let args = []
+    let index = 0
+    for(let item in noteData) {
+      if(notAllowed.includes(item)) continue;
+      console.log(item)
+      query += `${index !== 0 ? "," : ""} ${item}=?`
+      args.push(noteData[item]);
+      index++
+    }
+    query += " WHERE uuid=?"
+    console.log(query)
+    console.log(args)
+    return new Promise((resolve, reject) => {
+      this._conn.run(query, [...args, uuid], (err) => {
+        if (err) return reject(err);
+        return resolve(true);
+      });
+    });
+  }
   softDeleteNote(noteId) {
     return new Promise((resolve, reject) => {
       this._conn.run(`UPDATE t_item SET active = 0 WHERE uuid = ?`, [noteId], (err) => {

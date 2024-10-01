@@ -12,7 +12,7 @@ API.get("/", (req, res) => {
   res.status(200).json(result);
 });
 API.get("/notes", async (req, res) => {
-  const result = await easyNotesApi.getAllNotes()
+  const result = await easyNotesApi.getAllNotes(req.query)
   res.status(200).json(result);
 });
 API.post("/notes", async (req, res) => {
@@ -43,8 +43,32 @@ API.get("/notes/:uuid", async (req, res) => {
   }
   
 });
-API.put("/notes/:uuid", async (req, res) => {});
-API.patch("/notes/:uuid", async (req, res) => {});
+API.put("/notes/:uuid", async (req, res) => {
+  try {
+    const haveAllParams = req.body.data != undefined && req.body.view_extended != undefined && req.body.theme != undefined && req.body.parent_folder != undefined
+    const inputData = {
+      data: req.body.data,
+      view_extended: req.body.view_extended,
+      theme: req.body.theme,
+      parent_folder: req.body.parent_folder,
+    }
+    if(!haveAllParams) throw Error(`Invalid Payload`);
+    await easyNotesApi.updateNote(inputData, req.params.uuid)
+    res.status(204).json(inputData);
+  }
+  catch(error) {
+    res.status(500).json({"message": error.message});
+  }
+});
+API.patch("/notes/:uuid", async (req, res) => {
+  try {
+    await easyNotesApi.updateNote(req.body, req.params.uuid)
+    res.status(204).json({"deleted": true});
+  }
+  catch(error) {
+    res.status(500).json({"message": error});
+  }
+});
 API.delete("/notes/:uuid", async (req, res) => {
   try {
     await easyNotesApi.softDeleteNote(req.params.uuid)
