@@ -2,24 +2,44 @@ const EasyNotes = require("./notes.db");
 const express = require("express");
 const uuid = require("uuid")
 const PORT = 3001;
+const cors = require('cors')
 
 const API = express();
-API.use(express.json());
+API.use(express.json(), cors());
+
+const modelNoteStructure = (note) => {
+  return {
+    uuid: note.uuid,
+    active: note.active,
+    theme: note.theme,
+    type: note.type,
+    data: note.data,
+    extended: note.extended === 1 ? true : false,
+    createdAt: note.created_at,
+    updatedAt: note.updated_at,
+  }
+}
 
 const easyNotesApi = new EasyNotes(true);
 API.get("/", (req, res) => {
   const result = easyNotesApi.getAllItems();
   res.status(200).json(result);
 });
+
 API.get("/notes", async (req, res) => {
-  const result = await easyNotesApi.getAllNotes(req.query)
-  res.status(200).json(result);
+  const {data, count} = await easyNotesApi.getAllNotes(req.query)
+  const dataModeled = data.map(note => modelNoteStructure(note))
+  res.status(200).json({data: dataModeled, count});
 });
 API.post("/notes", async (req, res) => {
+  let extended = req.body.extended
+  if(typeof extended === 'boolean') {
+    extended = (extended === true) ? 1 : 0;
+  }
   const inputData = {
     uuid: uuid.v4(),
     data: req.body.data,
-    view_extended: req.body.extended ?? 0,
+    view_extended: extended,
     theme: req.body.theme ?? 'yellow',
     type: 1
   }
