@@ -19,3 +19,36 @@ export const getNotesByPage = async ({page, pageSize}: any): Promise<{notes: Not
   }
 
 }
+
+export const getNoteById = async (uuid: string): Promise<NoteType> => {
+  try {
+    const raw = await fetch(`${DOMAIN_URI}/notes/${uuid}`, {method: 'GET'})
+    return await raw.json()
+  }
+  catch(error) {
+    throw new Error(`Something went wrong`);
+  }
+
+}
+
+export const updateNote = async (data: NoteType, uuid: string): Promise<NoteType> => {
+  try {
+    const raw = await fetch(`${DOMAIN_URI}/notes/${uuid}`, {method: 'PUT', body: JSON.stringify(data)})
+    return await raw.json()
+  }
+  catch(error) {
+    throw new Error(`Could not update note`);
+  }
+
+}
+
+export const deleteNote = async (uuid: string) => {
+  try {
+    const raw = await fetch(`${DOMAIN_URI}/notes/${uuid}`, {method: 'DELETE'})
+    return history.back();
+  }
+  catch(error) {
+    throw new Error(`Could not delete note`);
+  }
+
+}

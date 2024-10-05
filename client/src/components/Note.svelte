@@ -12,6 +12,6 @@
   console.log({note})
 </script>
 
-<div class={`item ${noteStyling} ${COLOR_SCHEME[theme]} ${extended && 'expanded'}`}>
+<a href={`\\note\\${note.uuid}`} class={`item ${noteStyling} ${COLOR_SCHEME[theme]} ${extended && 'expanded'}`}>
   <span class="pt-5 text-xl">{data}</span>
-</div>
+</a>

@@ -6,6 +6,7 @@ export type IColorScheme = {
 };
 export type NoteType = {
   data: string;
+  uuid: string;
   extended?: boolean;
   type: 1 | 0;
   theme: keyof IColorScheme;
