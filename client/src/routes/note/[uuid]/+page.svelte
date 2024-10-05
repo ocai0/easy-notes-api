@@ -18,6 +18,7 @@
     }
     catch(error) {
       showError = true
+      loaded=true
     }
   });
 </script>
