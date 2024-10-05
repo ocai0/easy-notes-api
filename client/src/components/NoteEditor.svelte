@@ -2,6 +2,8 @@
   import type { NoteType } from "$lib/Interfaces";
   import { updateNote, deleteNote } from "$lib/NoteEndpoints";
   export let note: NoteType
+  const themeColors = ['yellow', 'blue', 'red', 'green'];
+  const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 </script>
 <main class="text-slate-200 bg-slate-900 flex flex-col items-start justify-start h-full">
   <div class="flex items-center justify-between w-full p-5">
@@ -22,10 +24,9 @@
   <form action="" class="flex flex-col gap-2 w-full p-5">
     <div>
       <select name="theme" class="border text-slate-300 bg-slate-900 rounded px-2 py-1 cursor-pointer">
-        <option value="yellow">yellow</option>
-        <option value="blue">blue</option>
-        <option value="red">red</option>
-        <option value="green">green</option>
+        {#each themeColors as color}
+          <option value={color} selected={note.theme === color}>{capitalize(color)}</option>
+        {/each}
       </select>
     </div>
     <input type="text" name="data" placeholder="Start typing" value={note.data} class="bg-transparent text-xl py-5 text-slate-200">
