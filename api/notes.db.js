@@ -85,7 +85,7 @@ class EasyNotesDb {
   createNote(note, folderId) {
     if(!folderId) folderId = ROOT_FOLDER
     return new Promise((resolve, reject) => {
-      this._conn.run(`INSERT INTO t_item(uuid, data, view_extended, type, parent_folder, active) VALUES (?, ?, ?, ?, ?, ?)`, [note.uuid, note.data, note.view_extended, TYPE.NOTE, folderId, 1], (err) => {
+      this._conn.run(`INSERT INTO t_item(uuid, data, theme, view_extended, type, parent_folder, active) VALUES (?, ?, ?, ?, ?, ?, ?)`, [note.uuid, note.data, note.theme, note.view_extended, TYPE.NOTE, folderId, 1], (err) => {
         if(err) return reject(err);
         return resolve({id: note.uuid})
       })
@@ -100,7 +100,7 @@ class EasyNotesDb {
         this._conn.all("SELECT uuid FROM t_item WHERE type=?", [TYPE.NOTE], (err, result) => {
           if(err) return reject(err);
           const count = result.length;
-          this._conn.all(`SELECT * FROM t_item as note WHERE type = ? AND active = TRUE ORDER BY created_at LIMIT ? OFFSET ?`, [TYPE.NOTE, pageSize, page * pageSize], (err, rows) => {
+          this._conn.all(`SELECT uuid, data, theme, view_extended as extended, type, parent_folder, active, updated_at, created_at FROM t_item as note WHERE type = ? AND active = TRUE ORDER BY created_at LIMIT ? OFFSET ?`, [TYPE.NOTE, pageSize, page * pageSize], (err, rows) => {
             if(err) return reject(err);
             return resolve({data: rows, count})
           })
