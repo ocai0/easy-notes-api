@@ -64,7 +64,6 @@ API.get("/notes/:uuid", async (req, res) => {
   
 });
 API.put("/notes/:uuid", async (req, res) => {
-  console.log(req.body)
   try {
     const haveAllParams = req.body.data != undefined && req.body.view_extended != undefined && req.body.theme != undefined && req.body.parent_folder != undefined
     const inputData = {
