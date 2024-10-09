@@ -33,8 +33,8 @@ export const getNoteById = async (uuid: string): Promise<NoteType> => {
 
 export const updateNote = async (data: NoteType, uuid: string) => {
   try {
-    const raw = await fetch(`${DOMAIN_URI}/notes/${uuid}`, {method: 'PUT', body: JSON.stringify(data), headers: {'Content-Type': 'application/json'}})
-    return;
+    const headers = await fetch(`${DOMAIN_URI}/notes/${uuid}`, {method: 'PUT', body: JSON.stringify(data), headers: {'Content-Type': 'application/json'}})
+    alert(`Note updated!`)
   }
   catch(error) {
     throw new Error(`Could not update note`);
@@ -53,12 +53,14 @@ export const deleteNote = async (uuid: string) => {
 
 }
 
-export const createNote = async (data: NoteType): Promise<NoteType> => {
+export const createNote = async (data: NoteType) => {
   try {
-    const raw = await fetch(`${DOMAIN_URI}/notes`, {method: 'POST', body: JSON.stringify(data), headers: {'Content-Type': 'application/json'}})
-    return await raw.json()
+    const responseHeaders = await fetch(`${DOMAIN_URI}/notes`, {method: 'POST', body: JSON.stringify(data), headers: {'Content-Type': 'application/json'}})
+    const {origin} = window.location;
+    window.location.href = `${origin}/`
+
   }
   catch(error) {
-    throw new Error(`Could not update note`);
+    console.error(`Could not create note`, error);
   } 
 }
