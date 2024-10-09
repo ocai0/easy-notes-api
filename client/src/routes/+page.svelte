@@ -15,7 +15,7 @@
   });
 </script>
 
-<main class="text-slate-200 bg-slate-900 flex flex-col items-start justify-start h-full">
+<main class="text-slate-200 bg-slate-900 flex flex-col items-start justify-start h-full px-5">
   <div class="p-5 self-end fixed bottom-0">
     <a href="/note/new" class="p-2 flex items-center justify-center bg-slate-600 hover:bg-cyan-700 transition rounded-full">
       <span class="material-symbols-sharp"> add </span>
